@@ -1,8 +1,8 @@
 ---
-// 404 bilingüe con la identidad "Signal": traza que se aplana ("señal perdida") y el campo de puntos de fondo.
-// El servidor Go la sirve en cualquier ruta desconocida, así que todas las URLs son absolutas.
+// 404 bilingüe. El servidor Go la sirve en cualquier ruta desconocida, así que las URLs son absolutas.
 import '../styles/global.css';
 import { dict } from '../i18n';
+import Weave from '../components/Weave.astro';
 const es = dict.es.notFound;
 const en = dict.en.notFound;
 ---
@@ -13,114 +13,32 @@ const en = dict.en.notFound;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="color-scheme" content="light dark" />
     <title>404 · Marlon Guerra</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script is:inline src="/theme-init.js"></script>
   </head>
   <body>
-    <canvas class="fx-bg" data-fx-bg aria-hidden="true"></canvas>
-    <div class="fx-vignette" aria-hidden="true"></div>
-    <main class="wrap nf">
-      <p class="label"><span class="led led--flare"></span> HTTP 404 · GET <span class="path" data-path>/</span></p>
-      <h1 class="code">404</h1>
-      <svg class="flat" viewBox="0 0 600 80" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 40 C 30 40 40 8 60 8 S 90 72 110 72 S 140 14 160 14 S 190 62 210 62 S 235 30 250 34 S 270 44 290 40 L 600 40"></path>
-      </svg>
-      <div class="msgs">
+    <div class="rails" aria-hidden="true"></div>
+    <main class="shell plain">
+      <p class="label muted">HTTP 404</p>
+      <h1 class="display plain__code">404</h1>
+      <Weave motif="greca" lang="en" />
+      <div class="plain__cols">
         <section lang="en">
-          <h2>{en.title}</h2>
-          <p>{en.body}</p>
-          <a class="btn" href="/en/">{en.home} <span class="arrow" aria-hidden="true">→</span></a>
+          <h2 class="display">{en.title}</h2>
+          <p class="muted">{en.body}</p>
+          <a class="more label" href="/en/">{en.home} <span class="arrow" aria-hidden="true">→</span></a>
         </section>
         <section lang="es">
-          <h2>{es.title}</h2>
-          <p>{es.body}</p>
-          <a class="btn btn--ghost" href="/es/">{es.home} <span class="arrow" aria-hidden="true">→</span></a>
+          <h2 class="display">{es.title}</h2>
+          <p class="muted">{es.body}</p>
+          <a class="more label" href="/es/">{es.home} <span class="arrow" aria-hidden="true">→</span></a>
         </section>
       </div>
     </main>
     <script>
-      import '../scripts/notfound';
+      import '../scripts/plain';
     </script>
   </body>
 </html>
-
-<style>
-  .nf {
-    display: grid;
-    gap: var(--space-m);
-    align-content: center;
-    min-height: 100vh;
-    min-height: 100dvh;
-    padding-block: var(--space-2xl);
-  }
-  .label {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2xs);
-    flex-wrap: wrap;
-  }
-  .path {
-    color: var(--ink-2);
-    text-transform: none;
-    overflow-wrap: anywhere;
-  }
-  .code {
-    font-size: var(--step-6);
-    font-weight: 700;
-    font-stretch: 112.5%;
-    letter-spacing: -0.06em;
-    line-height: 0.9;
-    color: var(--ink);
-  }
-  .flat {
-    width: min(100%, 600px);
-    height: 64px;
-    overflow: visible;
-  }
-  .flat path {
-    fill: none;
-    stroke: var(--ion);
-    stroke-width: 2;
-    vector-effect: non-scaling-stroke;
-    stroke-dasharray: 900;
-    stroke-dashoffset: 900;
-    animation: trace 1.6s var(--ease-out) 0.2s forwards;
-  }
-  @keyframes trace {
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  .msgs {
-    display: grid;
-    gap: var(--space-xl);
-    max-width: 880px;
-  }
-  .msgs section {
-    display: grid;
-    gap: var(--space-xs);
-    justify-items: start;
-  }
-  .msgs h2 {
-    font-size: var(--step-2);
-  }
-  .msgs p {
-    color: var(--ink-2);
-    max-width: 44ch;
-  }
-  .msgs .btn {
-    margin-top: var(--space-2xs);
-  }
-  @media (min-width: 768px) {
-    .msgs {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .flat path {
-      stroke-dashoffset: 0;
-    }
-  }
-</style>

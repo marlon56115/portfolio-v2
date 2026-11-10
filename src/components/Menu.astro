@@ -1,0 +1,50 @@
+---
+// Menú a pantalla completa (dialog nativo: foco atrapado y Esc gratis). core/menu.ts lo abre y cierra.
+import type { Lang } from '../i18n';
+import { dict } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dict[lang];
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const items = (['top', 'toolkit', 'work', 'experience', 'recognition', 'contact'] as const).map((id) => ({ id, label: t.nav[id] }));
+---
+
+<dialog class="menu tone-flood" data-menu aria-label={t.ui.siteMenu}>
+  <div class="menu__top shell">
+    <span class="hud__logo label"><span class="logo logo--inv cut" aria-hidden="true">{t.initials}</span><span>{t.name}</span></span>
+    <button class="label menu__mode" type="button" data-theme-toggle aria-label={t.ui.themeToggle}>
+      <span>{t.ui.mode}</span>
+      <span data-theme-label data-light={t.ui.themeLight} data-dark={t.ui.themeDark}>{t.ui.themeLight}</span>
+    </button>
+    <button class="menu__close btn-outline label" type="button" data-menu-close>{t.ui.close}</button>
+  </div>
+  <div class="menu__body shell">
+    <nav aria-label={t.ui.primaryNav}>
+      <ol class="menu__list">
+        {
+          items.map((it, i) => (
+            <li>
+              <a class="menu__link" href={`#${it.id}`} data-menu-link>
+                <span class="label menu__no">{String(i + 1).padStart(2, '0')}</span>
+                <span class="display menu__word">{it.label}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+    <div class="menu__side">
+      <p class="label">{t.ui.connect}</p>
+      <ul>
+        <li><a href={`mailto:${t.email}`}>{t.email}</a></li>
+        <li><a href={t.linkedin} rel="noopener noreferrer" target="_blank">LinkedIn ↗</a></li>
+        <li><a href={t.github} rel="noopener noreferrer" target="_blank">GitHub ↗</a></li>
+        <li><a href={`/${other}/`} hreflang={other} lang={other} data-set-lang={other}>{other === 'en' ? 'English' : 'Español'} →</a></li>
+      </ul>
+      <p class="label menu__where">{t.city}, SV · {t.coords}</p>
+    </div>
+  </div>
+</dialog>

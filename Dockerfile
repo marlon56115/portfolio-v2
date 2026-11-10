@@ -24,7 +24,7 @@ RUN go vet ./... && go test -count=1 ./... \
  && CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w -buildid=" -o /out/portfolio .
 
 FROM gcr.io/distroless/static-debian12:nonroot@sha256:afa5c872c891853ca7fcf1f12c3edb23f7eeef36189728842dd51042ff57f7ab
-LABEL org.opencontainers.image.source="https://github.com/marlon56115/portfolio" \
+LABEL org.opencontainers.image.source="https://github.com/marlon56115/portfolio-v2" \
       org.opencontainers.image.description="Portafolio de Marlon Guerra: sitio estático + servidor Go" \
       org.opencontainers.image.licenses="MIT"
 COPY --from=server /out/portfolio /portfolio

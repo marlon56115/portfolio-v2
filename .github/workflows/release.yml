@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  IMAGE: ghcr.io/marlon56115/portfolio
+  IMAGE: ghcr.io/marlon56115/portfolio-v2
 
 jobs:
   ci:
@@ -83,22 +83,22 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${GH_TOKEN}" ]; then
-            echo "::warning::HOME_SERVER_TOKEN not set: bump k8s/apps/portfolio/source.yaml by hand"; exit 0
+            echo "::warning::HOME_SERVER_TOKEN not set: bump k8s/apps/portfolio-v2/source.yaml by hand"; exit 0
           fi
-          FILE=k8s/apps/portfolio/source.yaml
-          BRANCH="bump/portfolio-${VERSION}"
+          FILE=k8s/apps/portfolio-v2/source.yaml
+          BRANCH="bump/portfolio-v2-${VERSION}"
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/marlon56115/home-server.git" hs
           cd hs
           sed -i -E "s|^(    tag: )v[0-9][^ ]*( # debe coincidir.*)$|\1v${VERSION}\2|" "$FILE"
           sed -i -E "s|^(      tag: )\"[^\"]+\"( # versión desplegada.*)$|\1\"${VERSION}\"\2|" "$FILE"
           sed -i -E "s|\(([0-9]+\.[0-9]+\.[0-9]+)\) del HelmRelease|(${VERSION}) del HelmRelease|" "$FILE"
           if git diff --quiet; then echo "nothing to bump"; exit 0; fi
-          git config user.name "portfolio-release[bot]"
-          git config user.email "portfolio-release@users.noreply.github.com"
+          git config user.name "portfolio-v2-release[bot]"
+          git config user.email "portfolio-v2-release@users.noreply.github.com"
           git checkout -b "$BRANCH"
-          git commit -am "chore(portfolio): desplegar v${VERSION}"
+          git commit -am "chore(portfolio-v2): desplegar v${VERSION}"
           git push origin "$BRANCH"
           gh pr create --repo marlon56115/home-server --head "$BRANCH" --base main \
-            --title "chore(portfolio): desplegar v${VERSION}" \
-            --body "PR automático del release de [portfolio v${VERSION}](https://github.com/marlon56115/portfolio/releases/tag/v${VERSION}). Sube \`ref.tag\` y \`values.image.tag\` juntos."
+            --title "chore(portfolio-v2): desplegar v${VERSION}" \
+            --body "PR automático del release de [portfolio-v2 v${VERSION}](https://github.com/marlon56115/portfolio-v2/releases/tag/v${VERSION}). Sube \`ref.tag\` y \`values.image.tag\` juntos."
           gh pr merge --repo marlon56115/home-server "$BRANCH" --squash --delete-branch

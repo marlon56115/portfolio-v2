@@ -1,0 +1,48 @@
+---
+// Sobre mí: contorno de El Salvador en añil con íconos pixel, y encima el párrafo que se
+// revela palabra por palabra con el scroll (motion.ts). Sin JS o con reduced-motion: todo visible.
+import type { Lang } from '../i18n';
+import { dict, careerStart } from '../i18n';
+import { yearsSince } from '../lib/time';
+import { mapPath, mapViewBox, project } from '../lib/geo';
+import Pixel from './Pixel.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dict[lang];
+// {years} se parte para poder rehidratarlo en el cliente (data-since).
+const [before, after] = t.about.text.split('{years}');
+const words = (s: string) => s.trim().split(/\s+/);
+const [sx, sy] = project(-89.56, 13.99); // Santa Ana
+---
+
+<section class="about" id="about" data-about aria-labelledby="about-title">
+  <div class="about__stage shell">
+    <h2 class="sr-only" id="about-title">{t.about.title}</h2>
+    <div class="about__map" aria-hidden="true">
+      <svg viewBox={mapViewBox} class="about__svg" focusable="false">
+        <defs>
+          <pattern id="map-dots" width="6" height="6" patternUnits="userSpaceOnUse">
+            <rect width="2" height="2" fill="currentColor" opacity="0.28"></rect>
+            <rect x="3" y="3" width="2" height="2" fill="currentColor" opacity="0.16"></rect>
+          </pattern>
+        </defs>
+        <path class="about__fill" d={mapPath} fill="url(#map-dots)"></path>
+        <path class="about__outline" d={mapPath} fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" pathLength="1"></path>
+        <rect class="about__pin" x={sx - 6} y={sy - 6} width="12" height="12" fill="currentColor" transform={`rotate(45 ${sx} ${sy})`}></rect>
+      </svg>
+      <Pixel motif="volcan" class="about__icon about__icon--volcan" />
+      <Pixel motif="torogoz" class="about__icon about__icon--torogoz" />
+      <Pixel motif="izote" class="about__icon about__icon--izote" />
+      <Pixel motif="olas" class="about__icon about__icon--olas" />
+      <p class="about__where label"><span>{t.city}, SV</span><span class="muted">{t.coords}</span></p>
+    </div>
+    <p class="about__text" data-words>
+      {words(before).map((w) => <><span class="w">{w}</span>{' '}</>)}
+      <span class="w" data-since={careerStart}>{yearsSince(careerStart)}</span>{' '}
+      {words(after).map((w) => <><span class="w">{w}</span>{' '}</>)}
+    </p>
+  </div>
+</section>

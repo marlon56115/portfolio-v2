@@ -1,6 +1,5 @@
-/* Hoja global: el orden importa (tokens → base → kit → efectos). Ver DESIGN.md. */
 @import './fonts.css';
 @import './tokens.css';
 @import './base.css';
-@import './components.css';
+@import './sections.css';
 @import './fx.css';

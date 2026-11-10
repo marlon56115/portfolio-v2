@@ -2,23 +2,23 @@
 
 import { common, careerStart, langs, type Lang } from './common';
 import { hero } from './hero';
-import { system } from './system';
-import { work, type Job } from './work';
+import { toolkit } from './toolkit';
 import { projects, type Project } from './projects';
-import { skills } from './skills';
+import { experience, type Job } from './experience';
+import { recognition, type Award } from './recognition';
 import { contact } from './contact';
-import { terminal } from './terminal';
+import { weave } from './weave';
 
 function build(lang: Lang) {
   return {
     ...common[lang],
     ...hero[lang],
-    ...system[lang],
-    ...work[lang],
+    ...toolkit[lang],
     ...projects[lang],
-    ...skills[lang],
+    ...experience[lang],
+    ...recognition[lang],
     ...contact[lang],
-    ...terminal[lang],
+    ...weave[lang],
   };
 }
 
@@ -26,4 +26,4 @@ export type Dict = ReturnType<typeof build>;
 export const dict: Record<Lang, Dict> = { es: build('es'), en: build('en') };
 
 export { careerStart, langs };
-export type { Lang, Job, Project };
+export type { Lang, Job, Project, Award };

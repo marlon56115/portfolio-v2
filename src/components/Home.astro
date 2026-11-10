@@ -1,16 +1,15 @@
 ---
-// Página principal (una por idioma).
-// El orden de las secciones sigue src/lib/sections.ts (nav e índices "01 / …" salen de ahí).
+// Página principal (una por idioma). El orden de las secciones es el de DESIGN.md §5.
 import Base from '../layouts/Base.astro';
 import Header from './Header.astro';
-import Footer from './Footer.astro';
+import Menu from './Menu.astro';
 import Hero from './Hero.astro';
-import System from './System.astro';
+import About from './About.astro';
+import Toolkit from './Toolkit.astro';
 import Work from './Work.astro';
-import Projects from './Projects.astro';
-import Skills from './Skills.astro';
+import Experience from './Experience.astro';
+import Recognition from './Recognition.astro';
 import Contact from './Contact.astro';
-import Terminal from './Terminal.astro';
 import type { Lang } from '../i18n';
 
 interface Props {
@@ -23,16 +22,16 @@ const version = process.env.BUILD_VERSION || 'dev';
 
 <Base lang={lang}>
   <Header lang={lang} />
+  <Menu lang={lang} />
   <main id="main">
     <Hero lang={lang} />
+    <About lang={lang} />
+    <Toolkit lang={lang} />
     <Work lang={lang} />
-    <Projects lang={lang} />
-    <Skills lang={lang} />
-    <System lang={lang} />
-    <Contact lang={lang} />
+    <Experience lang={lang} />
+    <Recognition lang={lang} />
   </main>
-  <Footer lang={lang} version={version} />
-  <Terminal lang={lang} />
+  <Contact lang={lang} version={version} />
 </Base>
 
 <script>

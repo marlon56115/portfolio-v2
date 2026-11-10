@@ -1,0 +1,51 @@
+---
+// Recognition: filtros tipo pestaña y una fila por logro: fecha | título | emisor | resultado.
+import type { Lang } from '../i18n';
+import { dict } from '../i18n';
+import Weave from './Weave.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dict[lang];
+const r = t.recognition;
+const n = (k: 'award' | 'cert') => r.items.filter((i) => i.kind === k).length;
+const pad = (v: number) => String(v).padStart(2, '0');
+const filters = [
+  { k: 'all', label: r.filters.all, count: r.items.length },
+  { k: 'award', label: r.filters.award, count: n('award') },
+  { k: 'cert', label: r.filters.cert, count: n('cert') },
+];
+---
+
+<section class="section rec" id="recognition" aria-labelledby="rec-title">
+  <canvas class="dye" data-dye aria-hidden="true"></canvas>
+  <Weave motif="torogoz" lang={lang} caption />
+  <div class="shell">
+    <header class="sec-head rec__head">
+      <h2 class="display" id="rec-title"><span class="mask"><span>{r.title}</span></span></h2>
+    </header>
+    <div class="rec__filters" role="group" aria-label={r.filterLabel} data-filters data-reveal>
+      {
+        filters.map((f, i) => (
+          <button class="rec__tab label" type="button" data-filter={f.k} aria-pressed={i === 0 ? 'true' : 'false'}>
+            {f.label} <span class="rec__n">{pad(f.count)}</span>
+          </button>
+        ))
+      }
+    </div>
+    <ol class="rec__list">
+      {
+        r.items.map((it) => (
+          <li class="rec__row" data-kind={it.kind} data-reveal>
+            <span class="label muted rec__date">{it.date || '—'}</span>
+            <h3 class="display rec__title">{it.title}</h3>
+            <span class="muted rec__issuer">{it.issuer}</span>
+            <span class="label accent rec__result">{it.result}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

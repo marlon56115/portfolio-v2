@@ -1,218 +1,259 @@
-/*
- * Efectos: fondo animado, seguidor del cursor, barra de progreso, scramble y aparición al hacer scroll.
- * Los controla src/scripts/fx/* y src/scripts/core/reveal.ts. Reglas de movimiento en DESIGN.md.
- */
+/* Efectos: intro, entrada del hero, teñido entre secciones, cursor, aviso, transición de tema, Lenis. */
 
-/* ---------- fondo: campo de señal (fx/background.ts) ---------- */
-.fx-bg {
+/* ---------- Intro de primera visita (solo CSS; theme-init.js pone html.intro-on) ---------- */
+.intro {
+  display: none;
+}
+html.intro-on .intro {
+  display: block;
   position: fixed;
   inset: 0;
-  z-index: var(--z-bg);
-  width: 100%;
-  height: 100%;
+  z-index: 300;
   pointer-events: none;
+  animation: intro-gone 0s 1.45s forwards;
 }
-/* Viñeta suave para que el contenido no compita con los puntos de los bordes. */
-.fx-vignette {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-bg);
-  pointer-events: none;
-  background: radial-gradient(ellipse 120% 90% at 50% 0%, transparent 55%, var(--bg) 100%);
+.intro__half {
+  position: absolute;
+  inset-inline: 0;
+  height: 50.5%;
+  background: var(--bg);
 }
-
-/* ---------- seguidor del cursor (fx/cursor.ts; solo puntero fino) ---------- */
-.fx-cursor {
-  position: fixed;
+.intro__half--a {
   top: 0;
+  animation: intro-up 450ms var(--ease-io) 1s forwards;
+}
+.intro__half--b {
+  bottom: 0;
+  animation: intro-down 450ms var(--ease-io) 1s forwards;
+}
+.intro__thread {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% - 1px);
+  height: 2px;
+  background: var(--indigo);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation:
+    intro-thread 520ms var(--ease-io) forwards,
+    intro-fade 150ms 1s forwards;
+}
+.intro__mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--bg);
+  animation: intro-fade 150ms 1s forwards;
+}
+.intro__logo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  background: var(--indigo);
+  color: var(--on-indigo);
+  font: 600 0.8rem / 1 var(--font-mono);
+  letter-spacing: 0.06em;
+}
+/* El logo se "teje" de abajo hacia arriba, en 8 pasadas. */
+.intro__logo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  transform-origin: top;
+  animation: intro-cover 420ms steps(8) 330ms forwards;
+}
+.intro__name {
+  clip-path: inset(0 100% 0 0);
+  animation: intro-type 380ms steps(12) 520ms forwards;
+}
+@keyframes intro-thread { to { transform: scaleX(1); } }
+@keyframes intro-cover { to { transform: scaleY(0); } }
+@keyframes intro-type { to { clip-path: inset(0); } }
+@keyframes intro-fade { to { opacity: 0; } }
+@keyframes intro-up { to { transform: translateY(-101%); } }
+@keyframes intro-down { to { transform: translateY(101%); } }
+@keyframes intro-gone { to { visibility: hidden; } }
+
+/* ---------- Entrada del hero (CSS, para no depender del bundle de movimiento) ---------- */
+html.intro-on {
+  --intro: 1.05s;
+}
+html.motion [data-in] {
+  opacity: 0;
+  animation: hero-in 900ms var(--ease-out) forwards;
+  animation-delay: calc(var(--intro, 0s) + 120ms);
+}
+html.motion [data-in='1'] { animation-delay: calc(var(--intro, 0s) + 200ms); }
+html.motion [data-in='2'] { animation-delay: calc(var(--intro, 0s) + 280ms); }
+html.motion [data-in='3'] { animation-delay: calc(var(--intro, 0s) + 360ms); }
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+html.motion .ch__in {
+  transform: translateY(108%);
+  animation: ch-up 1000ms var(--ease-out) forwards;
+  animation-delay: calc(var(--intro, 0s) + 250ms);
+}
+html.motion .ch:nth-child(2) .ch__in { animation-delay: calc(var(--intro, 0s) + 295ms); }
+html.motion .ch:nth-child(3) .ch__in { animation-delay: calc(var(--intro, 0s) + 340ms); }
+html.motion .ch:nth-child(4) .ch__in { animation-delay: calc(var(--intro, 0s) + 385ms); }
+html.motion .ch:nth-child(5) .ch__in { animation-delay: calc(var(--intro, 0s) + 430ms); }
+html.motion .ch:nth-child(6) .ch__in { animation-delay: calc(var(--intro, 0s) + 475ms); }
+html.motion .ch:nth-child(n + 7) .ch__in { animation-delay: calc(var(--intro, 0s) + 520ms); }
+@keyframes ch-up {
+  to {
+    transform: none;
+  }
+}
+
+/* ---------- Teñido entre secciones (fx/dye.ts) ---------- */
+.dye {
+  position: absolute;
   left: 0;
-  z-index: var(--z-cursor);
+  bottom: calc(100% - 1px);
+  width: 100%;
+  height: clamp(90px, 12vw, 150px);
+  pointer-events: none;
+}
+
+/* ---------- Cursor (fx/cursor.ts; solo puntero fino) ---------- */
+.cur,
+.cur-ring {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 400;
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--dur-2) var(--ease-out);
+  color: var(--indigo);
 }
-.fx-cursor.is-on {
+html.has-cursor .cur,
+html.has-cursor .cur-ring {
   opacity: 1;
 }
-.fx-cursor.is-hidden {
-  opacity: 0;
-}
-.fx-cursor__corner {
-  position: fixed;
-  top: 0;
-  left: 0;
+.cur {
   width: 7px;
   height: 7px;
-  border: 0 solid var(--ion);
-  will-change: transform;
+  margin: -3.5px 0 0 -3.5px;
+  background: currentColor;
 }
-.fx-cursor__corner[data-c='tl'] {
-  border-top-width: 1.5px;
-  border-left-width: 1.5px;
+.cur-ring {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: -15px 0 0 -15px;
 }
-.fx-cursor__corner[data-c='tr'] {
-  border-top-width: 1.5px;
-  border-right-width: 1.5px;
-}
-.fx-cursor__corner[data-c='bl'] {
-  border-bottom-width: 1.5px;
-  border-left-width: 1.5px;
-}
-.fx-cursor__corner[data-c='br'] {
-  border-bottom-width: 1.5px;
-  border-right-width: 1.5px;
-}
-.fx-cursor.is-target .fx-cursor__corner {
-  border-color: var(--volt-ink);
-}
-.fx-cursor__readout {
-  position: fixed;
-  top: 0;
-  left: 0;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--muted);
-  white-space: nowrap;
-  will-change: transform;
-  transition: opacity var(--dur-2) var(--ease-out);
-}
-.fx-cursor.is-target .fx-cursor__readout {
-  opacity: 0;
-}
-
-/* ---------- progreso de lectura (core/nav.ts) ---------- */
-.fx-progress {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 1px;
-  pointer-events: none;
-}
-.fx-progress__bar {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, var(--ion), var(--volt));
-  transform-origin: 0 50%;
-  transform: scaleX(0);
-}
-/* Cabeza de la traza: un punto que avanza con el progreso. */
-.fx-progress__head {
-  position: absolute;
-  top: -2px;
-  left: 0;
-  width: 5px;
-  height: 5px;
-  background: var(--volt);
-  box-shadow: 0 0 8px var(--volt);
-  translate: -2.5px 0;
-  opacity: 0;
-  transition: opacity var(--dur-2) var(--ease-out);
-}
-.fx-progress.is-active .fx-progress__head {
-  opacity: 1;
-}
-
-/* ---------- scramble (fx/scramble.ts) ---------- */
-/* El texto visible se reemplaza por una copia aria-hidden; el accesible queda en .visually-hidden. */
-[data-scramble] {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ---------- aparición al hacer scroll (core/reveal.ts) ---------- */
-/* Solo con JS: sin JS (o sin IntersectionObserver) todo es visible. */
-.js [data-reveal] {
-  opacity: 0;
-  translate: 0 14px;
+/* La forma vive en un hijo para que GSAP mueva el padre y CSS transforme la forma. */
+.cur-ring i {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border: 1px solid currentColor;
+  transform: rotate(45deg) scale(0.62);
   transition:
-    opacity var(--dur-4) var(--ease-out),
-    translate var(--dur-4) var(--ease-out);
-  transition-delay: var(--reveal-delay, 0ms);
+    transform var(--t-base) var(--ease-out),
+    background-color var(--t-fast),
+    border-radius var(--t-base);
 }
-.js [data-reveal='fade'] {
-  translate: none;
+.cur-ring b {
+  display: none;
+  font: 600 0.5625rem / 1 var(--font-mono);
+  letter-spacing: 0.14em;
+  color: var(--on-indigo);
+  transform: rotate(-45deg);
 }
-.js [data-reveal].is-in {
-  opacity: 1;
-  translate: none;
+.is-inv.cur,
+.is-inv.cur-ring {
+  color: var(--on-indigo);
+}
+.cur-ring.is-link i {
+  transform: rotate(45deg) scale(1.1);
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.cur-ring.is-view i {
+  transform: rotate(0deg) scale(2);
+  background: var(--indigo);
+  border-color: var(--indigo);
+}
+.cur-ring.is-view b {
+  display: block;
+  transform: scale(0.5);
+}
+.cur.is-view {
+  opacity: 0;
+}
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button {
+  cursor: none;
+}
+
+/* ---------- Aviso (easter egg) ---------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 350;
+  padding: 10px 14px;
+  background: var(--ink);
+  color: var(--bg);
+  transform: translate(-50%, 220%);
+  transition: transform var(--t-slow) var(--ease-out);
+}
+.toast.is-on {
+  transform: translate(-50%, 0);
+}
+
+/* ---------- Cambio de tema / tina: la página se tiñe de arriba hacia abajo ---------- */
+::view-transition-old(root) {
+  animation: none;
+}
+::view-transition-new(root) {
+  animation: dye-wipe 700ms var(--ease-io);
+}
+@keyframes dye-wipe {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+/* ---------- Lenis ---------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .js [data-reveal] {
-    opacity: 1;
-    translate: none;
-    transition: none;
+  ::view-transition-new(root) {
+    animation: none;
   }
-  .fx-cursor {
-    display: none;
+  .hero__scroll-line {
+    animation: none;
   }
-}
-
-/* ---------- foco de luz en paneles (fx/spotlight.ts; solo puntero fino) ---------- */
-/* Reutiliza los pseudos del panel (components.css): ::before es el filete, ::after la superficie.
-   Solo se añade background-image, así el color de fondo de cada panel sigue mandando.
-   --fx-a se registra para que el halo entre y salga con transición. */
-@property --fx-a {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 0;
-}
-@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .panel::before,
-  .panel::after {
-    transition: --fx-a var(--dur-3) var(--ease-out);
-  }
-  .panel::before {
-    background-image: radial-gradient(
-      200px circle at var(--fx-sx, 50%) var(--fx-sy, 50%),
-      color-mix(in srgb, var(--ion) calc(var(--fx-a) * 70%), transparent),
-      transparent 75%
-    );
-  }
-  .panel::after {
-    background-image: radial-gradient(
-      340px circle at var(--fx-sx, 50%) var(--fx-sy, 50%),
-      color-mix(in srgb, var(--ion-soft) calc(var(--fx-a) * 100%), transparent),
-      transparent 70%
-    );
-  }
-  .panel.fx-spot::before,
-  .panel.fx-spot::after {
-    --fx-a: 1;
-  }
-
-  /* .spot: bloques sin pseudos de panel (tarjeta de proyecto, detalle del puesto). Halo en ::after
-     y un tramo encendido del filete superior; no toca el layout. */
-  .spot {
-    position: relative;
-    isolation: isolate;
-  }
-  .spot::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(160px circle at var(--fx-sx, 50%) 0, color-mix(in srgb, var(--ion) calc(var(--fx-a) * 70%), transparent), transparent 75%) top / 100% 1px no-repeat,
-      radial-gradient(420px circle at var(--fx-sx, 50%) var(--fx-sy, 50%), color-mix(in srgb, var(--ion-soft) calc(var(--fx-a) * 70%), transparent), transparent 70%);
-    transition: --fx-a var(--dur-3) var(--ease-out);
-  }
-  .spot.fx-spot::after {
-    --fx-a: 1;
-  }
-}
-
-/* ---------- cambio de tema con barrido circular (fx/theme-wipe.ts) ---------- */
-/* El JS anima el clip-path de la vista nueva; aquí se quita el fundido por defecto. */
-:root.fx-wipe::view-transition-old(root),
-:root.fx-wipe::view-transition-new(root) {
-  animation: none;
-  mix-blend-mode: normal;
-}
-:root.fx-wipe::view-transition-new(root) {
-  z-index: 1;
 }

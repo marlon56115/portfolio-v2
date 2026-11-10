@@ -1,0 +1,91 @@
+---
+// Experience: sección noche. Tabla No. / Empresa / Rol / Periodo / Estado; cada fila se expande con "+".
+import type { Lang } from '../i18n';
+import { dict } from '../i18n';
+import { formatRange, jobDuration } from '../lib/time';
+import Weave from './Weave.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = dict[lang];
+const x = t.experience;
+const rows = [
+  ...t.jobs.map((j) => ({
+    id: j.id,
+    company: j.company,
+    role: j.role,
+    period: formatRange(j.from, j.to, lang, x.present),
+    meta: `${jobDuration(j.from, j.to, lang)} · ${j.mode}`,
+    since: j.to ? null : j.from,
+    status: j.to ? ('logged' as const) : ('duty' as const),
+    summary: j.summary,
+    points: j.points,
+    stack: j.stack,
+  })),
+  {
+    id: 'edu',
+    company: x.education.company,
+    role: x.education.role,
+    period: `${x.education.from} — ${x.education.to}`,
+    meta: '',
+    since: null,
+    status: 'graduated' as const,
+    summary: x.education.summary,
+    points: x.education.points,
+    stack: [] as string[],
+  },
+];
+const led = { duty: 'led--ok', logged: 'led--log', graduated: 'led--warn' };
+---
+
+<section class="section xp tone-night" id="experience" aria-labelledby="xp-title">
+  <canvas class="dye" data-dye aria-hidden="true"></canvas>
+  <Weave motif="volcan" lang={lang} caption />
+  <div class="shell">
+    <header class="sec-head">
+      <h2 class="display" id="xp-title"><span class="mask"><span>{x.title}</span></span></h2>
+      <p class="label muted" data-reveal><span data-count={rows.length}>{String(rows.length).padStart(2, '0')}</span> {x.entries}</p>
+    </header>
+    <div class="xp__head label muted" aria-hidden="true">
+      <span>{x.cols.no}</span><span>{x.cols.company}</span><span>{x.cols.role}</span><span>{x.cols.period}</span><span>{x.cols.status}</span><span></span>
+    </div>
+    <ol class="xp__list">
+      {
+        rows.map((r, i) => (
+          <li class="xp__item fold" data-fold data-reveal id={`job-${r.id}`}>
+            <div class="xp__row">
+              <span class="label muted xp__no">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="display xp__company">{r.company}</h3>
+              <p class="label xp__role">{r.role}</p>
+              <p class="label muted xp__period">{r.period}</p>
+              <p class="label xp__status"><span class:list={['led', led[r.status]]} aria-hidden="true" />{x.status[r.status]}</p>
+              <button class="xp__plus" type="button" data-fold-btn aria-expanded="false" aria-controls={`xp-${r.id}`} aria-label={`${x.expand} ${r.company}`} data-magnet>
+                <span aria-hidden="true" />
+              </button>
+            </div>
+            <div class="fold__panel" id={`xp-${r.id}`}>
+              <div class="xp__more">
+                <p class="xp__sum">{r.summary}</p>
+                <ul class="xp__points">
+                  {r.points.map((pt) => <li>{pt}</li>)}
+                </ul>
+                {r.meta && (
+                  <p class="label muted">
+                    {r.since ? <><span data-since={r.since} data-since-format="duration">{r.meta.split(' · ')[0]}</span> · {r.meta.split(' · ')[1]}</> : r.meta}
+                  </p>
+                )}
+                {r.stack.length > 0 && (
+                  <ul class="proj__tags" aria-label={x.stack}>
+                    {r.stack.map((s) => <li class="tag label">{s}</li>)}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

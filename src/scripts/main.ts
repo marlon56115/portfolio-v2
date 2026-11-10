@@ -1,43 +1,38 @@
-// Punto de entrada del cliente: solo importa e inicia. Cada módulo es dueño de su lógica
-// (ver DESIGN.md §9). Un error en un módulo no detiene a los demás.
-
-import { pageLang, safe } from '../lib/dom';
+// Arranque de la página. Lo esencial (tema, menú, plegables, tejido) va en este bundle;
+// GSAP + Lenis y los efectos de puntero se cargan aparte y solo si hay movimiento.
 import { hydrateSince } from '../lib/time';
-import { applyTheme, currentTheme, initTheme } from './core/theme';
-import { initNav, rememberLang } from './core/nav';
-import { initMenu } from './core/menu';
-import { initReveal } from './core/reveal';
-import { initFold } from './core/fold';
-import { initBackground } from './fx/background';
-import { initCursor } from './fx/cursor';
-import { initScramble } from './fx/scramble';
-import { initDecode } from './fx/decode';
-import { initSpotlight } from './fx/spotlight';
-import { initThemeWipe, switchTheme } from './fx/theme-wipe';
-import { initHero } from './sections/hero';
-import { initSystem } from './sections/system';
-import { initWork } from './sections/work';
-import { initProjects } from './sections/projects';
-import { initContact } from './sections/contact';
-import { initTerminal } from './terminal';
+import { reduced } from './core/env';
+import { initHud, initClock } from './core/hud';
+import { initLang, initMenu } from './core/menu';
+import { initTheme } from './core/theme';
+import { initCopy, initFilters, initFolds } from './core/ui';
+import { initKonami } from './fx/konami';
+import { initPixelName } from './fx/pixelname';
+import { initPortrait } from './fx/portrait';
+import { initText } from './fx/text';
+import { initWeave } from './fx/weave';
 
-const lang = pageLang();
+initTheme();
+initMenu();
+initLang();
+initHud();
+initClock();
+initFolds();
+initFilters();
+initCopy();
+hydrateSince();
+initWeave();
+initPortrait();
+initPixelName();
+initText();
+initKonami();
 
-safe('theme', initTheme);
-safe('time', () => hydrateSince());
-safe('nav', initNav);
-safe('menu', initMenu);
-safe('scramble', () => initScramble());
-safe('reveal', initReveal);
-safe('fold', initFold);
-safe('background', initBackground);
-safe('cursor', initCursor);
-safe('decode', initDecode);
-safe('spotlight', initSpotlight);
-safe('theme-wipe', () => initThemeWipe({ applyTheme, currentTheme }));
-safe('hero', initHero);
-safe('work', initWork);
-safe('projects', initProjects);
-safe('system', initSystem);
-safe('contact', initContact);
-safe('terminal', () => initTerminal({ lang, setTheme: (t, p, o) => void (switchTheme(t, p, o) || applyTheme(t, p)), rememberLang }));
+if (reduced) {
+  // Sin scroll suave: los enlaces del menú saltan directo.
+  document.addEventListener('nav:go', (e) => {
+    const id = (e as CustomEvent<string>).detail;
+    document.querySelector(id)?.scrollIntoView();
+  });
+} else {
+  import('./motion').then((m) => m.initMotion());
+}

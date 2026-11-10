@@ -1,0 +1,28 @@
+---
+// Franja de tejido: un <canvas> que fx/weave.ts teje fila por fila al entrar en pantalla,
+// y (opcional) su pie en mono: TEJIDO DE “palabra” · significado.
+import type { Lang } from '../i18n';
+import { dict } from '../i18n';
+import type { MotifKey } from '../lib/motifs';
+
+interface Props {
+  motif: MotifKey;
+  lang: Lang;
+  size?: 'band' | 'frame' | 'thin';
+  caption?: boolean;
+}
+const { motif, lang, size = 'band', caption = false } = Astro.props;
+const t = dict[lang].weave;
+const c = t.captions[motif];
+---
+
+<div class:list={['weave', `weave--${size}`]} aria-hidden="true">
+  <canvas data-weave={motif}></canvas>
+</div>
+{
+  caption && (
+    <p class="weave-cap label shell">
+      <span class="muted">{t.from}</span> “<span lang="es">{c.word}</span>” <span class="muted">· {c.meaning}</span>
+    </p>
+  )
+}

@@ -1,0 +1,28 @@
+---
+// Ícono pixel art en SVG a partir de un motivo (los mismos mapas de bits que las franjas).
+// Cada fila se dibuja como hilos horizontales: tramos unidos, con un respiro vertical.
+import { grid, type MotifKey } from '../lib/motifs';
+
+interface Props {
+  motif: MotifKey;
+  class?: string;
+}
+const { motif, class: cls } = Astro.props;
+const g = grid(motif);
+let d = '';
+g.rows.forEach((row, y) => {
+  let x = 0;
+  while (x < g.w) {
+    if (!row[x]) {
+      x++;
+      continue;
+    }
+    let end = x;
+    while (end < g.w && row[end]) end++;
+    d += `M${x} ${y}h${end - x}v.72h${x - end}z`;
+    x = end;
+  }
+});
+---
+
+<svg class={cls} viewBox={`0 0 ${g.w} ${g.h}`} fill="currentColor" aria-hidden="true" focusable="false"><path d={d}></path></svg>
