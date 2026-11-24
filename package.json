@@ -23,7 +23,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.12",
     "@types/node": "24.10.1",
-    "simple-icons": "16.37.0",
+    "simple-icons": "16.38.0",
     "typescript": "5.9.3"
   }
 }
